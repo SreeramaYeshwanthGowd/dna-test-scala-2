@@ -1,0 +1,9 @@
+bundle:
+  name: "dna-test-scala"
+
+targets:
+  dev:
+    mode: development
+    workspace:
+      host: "https://adb-7405611726852724.4.azuredatabricks.net/"
+      auth_type: azure-cli

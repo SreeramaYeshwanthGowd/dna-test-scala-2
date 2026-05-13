@@ -1,0 +1,26 @@
+name: PR CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_ACTOR: "${{ github.actor }}"
+      GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run PR build workflow
+        uses: ./.github/actions/build-and-deploy
+        with:
+          project_type: "scala"
+          python_version: "3.11"
+          run_tests: "false"
+          run_databricks_validate: "false"

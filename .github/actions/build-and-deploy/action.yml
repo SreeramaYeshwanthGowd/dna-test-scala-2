@@ -1,0 +1,57 @@
+name: Build And Deploy
+description: Set up the project toolchain and run Makefile setup/build commands.
+
+inputs:
+  project_type:
+    description: Generated project type.
+    required: true
+  python_version:
+    description: Python version used for Python-capable projects.
+    required: false
+    default: "3.11"
+  run_tests:
+    description: Set to true to run Makefile tests after the build step.
+    required: false
+    default: "false"
+  run_databricks_validate:
+    description: Set to true to run Makefile validate after the build step.
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      if: inputs.project_type == 'python' || inputs.project_type == 'hybrid'
+      uses: actions/setup-python@v5
+      with:
+        python-version: "${{ inputs.python_version }}"
+
+    - name: Set up Java
+      if: inputs.project_type == 'scala' || inputs.project_type == 'hybrid'
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: "21"
+
+    - name: Set up sbt
+      if: inputs.project_type == 'scala' || inputs.project_type == 'hybrid'
+      uses: sbt/setup-sbt@v1
+
+    - name: Run project setup
+      shell: bash
+      run: make setup
+
+    - name: Run project build
+      shell: bash
+      run: make build
+
+    - name: Run project tests
+      if: inputs.run_tests == 'true'
+      shell: bash
+      run: make test
+
+    - name: Run Databricks validate
+      if: inputs.run_databricks_validate == 'true'
+      shell: bash
+      run: make validate
